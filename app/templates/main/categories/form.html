@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Modifica' if category else 'Nuova' }} Categoria - Skill Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{ 'Modifica Categoria' if category else 'Nuova Categoria' }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nome Categoria *</label>
+                        <input type="text" class="form-control" id="name" name="name"
+                               value="{{ category.name if category else '' }}"
+                               required autofocus placeholder="Es: Programmazione, Sport, Lingue...">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="icon" class="form-label">Icona (emoji)</label>
+                        <input type="text" class="form-control" id="icon" name="icon"
+                               value="{{ category.icon if category else '' }}"
+                               placeholder="Es: 💻, 🎸, 📚">
+                        <div class="form-text">Lascia vuoto per usare l'icona predefinita 📚</div>
+                    </div>
+
+                    <!-- Emoji Picker -->
+                    <div class="mb-3">
+                        <label class="form-label">Icone suggerite</label>
+                        <div class="emoji-picker">
+                            {% for emoji in ['💻', '🎸', '📚', '🎨', '🏃', '🎮', '🍳', '💼', '🔬', '🎵', '📝', '🧘', '💪', '🌍', '📊', '🎯'] %}
+                            <button type="button" class="btn btn-outline-secondary btn-sm m-1 emoji-btn"
+                                    onclick="document.getElementById('icon').value='{{ emoji }}'">
+                                {{ emoji }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.categories_list') }}" class="btn btn-secondary">Annulla</a>
+                        <button type="submit" class="btn btn-primary">
+                            {{ 'Salva Modifiche' if category else 'Crea Categoria' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

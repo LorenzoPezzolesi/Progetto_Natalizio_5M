@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ skill.name }} - Skill Tracker{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.skills_list') }}">Skills</a></li>
+        <li class="breadcrumb-item active">{{ skill.name }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Skill Info -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ skill.name }}</h5>
+                <a href="{{ url_for('main.skills_edit', skill_id=skill.id) }}" class="btn btn-sm btn-outline-primary">
+                    Modifica
+                </a>
+            </div>
+            <div class="card-body">
+                {% if skill.description %}
+                <p class="text-muted">{{ skill.description }}</p>
+                {% endif %}
+
+                {% if skill.category_name %}
+                <p>
+                    <strong>Categoria:</strong>
+                    <span class="badge bg-secondary">{{ skill.category_name }}</span>
+                </p>
+                {% endif %}
+
+                <hr>
+
+                <!-- Level Progress -->
+                <div class="text-center mb-3">
+                    <h1 class="display-4 text-primary mb-0">{{ skill.current_level }}</h1>
+                    <p class="text-muted">Livello attuale / {{ skill.target_level }}</p>
+                </div>
+
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated
+                        {% if skill.get_progress_percentage() >= 100 %}bg-success
+                        {% elif skill.get_progress_percentage() >= 50 %}bg-info
+                        {% else %}bg-primary{% endif %}"
+                        role="progressbar"
+                        style="width: {{ skill.get_progress_percentage() }}%">
+                        {{ skill.get_progress_percentage()|round|int }}%
+                    </div>
+                </div>
+
+                <ul class="list-unstyled">
+                    <li><strong>XP Totali:</strong> {{ skill.total_xp }}</li>
+                    <li><strong>XP nel livello:</strong> {{ skill.get_current_level_xp() }} / {{ skill.get_xp_for_next_level() }}</li>
+                    <li><strong>XP per prossimo liv.:</strong> {{ skill.get_xp_needed_for_next_level() }}</li>
+                </ul>
+
+                <hr>
+
+                <div class="d-grid">
+                    <a href="{{ url_for('main.sessions_new', skill_id=skill.id) }}" class="btn btn-success">
+                        + Registra Sessione
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessions History -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Storico Sessioni</h5>
+            </div>
+            <div class="card-body">
+                {% if sessions %}
+                <table id="sessions-table" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Durata</th>
+                            <th>XP</th>
+                            <th>Note</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in sessions %}
+                        <tr>
+                            <td>{{ session.date }}</td>
+                            <td>{{ session.format_duration() }}</td>
+                            <td><span class="badge bg-success">+{{ session.xp_gained }}</span></td>
+                            <td>
+                                {% if session.notes %}
+                                <small>{{ session.notes[:30] }}{% if session.notes|length > 30 %}...{% endif %}</small>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('main.sessions_edit', session_id=session.id) }}"
+                                       class="btn btn-outline-primary">Modifica</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">Nessuna sessione registrata per questa skill.</p>
+                    <a href="{{ url_for('main.sessions_new', skill_id=skill.id) }}" class="btn btn-success">
+                        Registra la prima sessione
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#sessions-table').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json'
+        },
+        order: [[0, 'desc']],
+        pageLength: 10
+    });
+});
+</script>
+{% endblock %}

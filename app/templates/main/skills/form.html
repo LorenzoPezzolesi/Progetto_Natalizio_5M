@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Modifica' if skill else 'Nuova' }} Skill - Skill Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{ 'Modifica Skill' if skill else 'Nuova Skill' }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nome Skill *</label>
+                        <input type="text" class="form-control" id="name" name="name"
+                               value="{{ skill.name if skill else '' }}"
+                               required autofocus placeholder="Es: Python, Chitarra, Inglese...">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descrizione</label>
+                        <textarea class="form-control" id="description" name="description"
+                                  rows="3" placeholder="Descrizione opzionale della skill">{{ skill.description if skill and skill.description else '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="target_level" class="form-label">Livello Obiettivo *</label>
+                            <input type="number" class="form-control" id="target_level" name="target_level"
+                                   value="{{ skill.target_level if skill else 10 }}"
+                                   min="1" max="100" required>
+                            <div class="form-text">Il livello che vuoi raggiungere</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="category_id" class="form-label">Categoria</label>
+                            <select class="form-select" id="category_id" name="category_id">
+                                <option value="">-- Nessuna categoria --</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}"
+                                    {% if skill and skill.category_id == category.id %}selected{% endif %}>
+                                    {{ category.icon }} {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    {% if skill %}
+                    <div class="alert alert-info">
+                        <strong>Livello attuale:</strong> {{ skill.current_level }}<br>
+                        <strong>XP totali:</strong> {{ skill.total_xp }}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.skills_list') }}" class="btn btn-secondary">Annulla</a>
+                        <button type="submit" class="btn btn-primary">
+                            {{ 'Salva Modifiche' if skill else 'Crea Skill' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Skills - Skill Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Le tue Skills</h1>
+    <a href="{{ url_for('main.skills_new') }}" class="btn btn-primary">
+        + Nuova Skill
+    </a>
+</div>
+
+{% if skills %}
+<div class="card">
+    <div class="card-body">
+        <table id="skills-table" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Livello</th>
+                    <th>XP Totali</th>
+                    <th>Progresso</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for skill in skills %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('main.skills_detail', skill_id=skill.id) }}" class="text-decoration-none fw-bold">
+                            {{ skill.name }}
+                        </a>
+                        {% if skill.description %}
+                        <br><small class="text-muted">{{ skill.description[:50] }}{% if skill.description|length > 50 %}...{% endif %}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if skill.category_name %}
+                        <span class="badge bg-secondary">{{ skill.category_name }}</span>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-primary fs-6">{{ skill.current_level }}/{{ skill.target_level }}</span>
+                    </td>
+                    <td>{{ skill.total_xp }} XP</td>
+                    <td style="min-width: 150px;">
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar
+                                {% if skill.get_progress_percentage() >= 100 %}bg-success
+                                {% elif skill.get_progress_percentage() >= 50 %}bg-info
+                                {% else %}bg-primary{% endif %}"
+                                role="progressbar"
+                                style="width: {{ skill.get_progress_percentage() }}%">
+                                {{ skill.get_progress_percentage()|round|int }}%
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('main.sessions_new', skill_id=skill.id) }}"
+                               class="btn btn-success" title="Nuova sessione">
+                                +XP
+                            </a>
+                            <a href="{{ url_for('main.skills_edit', skill_id=skill.id) }}"
+                               class="btn btn-outline-primary" title="Modifica">
+                                Modifica
+                            </a>
+                            <button type="button" class="btn btn-outline-danger"
+                                    onclick="confirmDelete('{{ skill.name }}', '{{ url_for('main.skills_delete', skill_id=skill.id) }}')"
+                                    title="Elimina">
+                                Elimina
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <h4 class="text-muted">Non hai ancora creato nessuna skill</h4>
+        <p class="text-muted">Inizia creando la tua prima skill per tracciare i tuoi progressi!</p>
+        <a href="{{ url_for('main.skills_new') }}" class="btn btn-primary btn-lg">
+            Crea la tua prima Skill
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare la skill "<span id="deleteItemName"></span>"?</p>
+                <p class="text-danger"><small>Questa azione eliminerà anche tutte le sessioni collegate.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Elimina</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#skills-table').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json'
+        },
+        order: [[2, 'desc']], // Ordina per livello decrescente
+        pageLength: 10
+    });
+});
+
+function confirmDelete(name, url) {
+    document.getElementById('deleteItemName').textContent = name;
+    document.getElementById('deleteForm').action = url;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

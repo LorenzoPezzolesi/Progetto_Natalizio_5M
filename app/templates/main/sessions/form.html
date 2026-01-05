@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Modifica' if session else 'Nuova' }} Sessione - Skill Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{ 'Modifica Sessione' if session else 'Nuova Sessione' }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="skill_id" class="form-label">Skill *</label>
+                        {% if session %}
+                        <input type="text" class="form-control" value="{{ session.skill_name }}" disabled>
+                        <input type="hidden" name="skill_id" value="{{ session.skill_id }}">
+                        {% else %}
+                        <select class="form-select" id="skill_id" name="skill_id" required>
+                            <option value="">-- Seleziona una skill --</option>
+                            {% for skill in skills %}
+                            <option value="{{ skill.id }}"
+                                {% if skill_id_preselected == skill.id %}selected{% endif %}>
+                                {{ skill.name }} (Lv. {{ skill.current_level }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label">Data *</label>
+                            <input type="date" class="form-control" id="date" name="date"
+                                   value="{{ session.date if session else today }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="duration_minutes" class="form-label">Durata (minuti) *</label>
+                            <input type="number" class="form-control" id="duration_minutes" name="duration_minutes"
+                                   value="{{ session.duration_minutes if session else 30 }}"
+                                   min="1" max="480" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="xp_gained" class="form-label">XP Guadagnati *</label>
+                        <input type="number" class="form-control" id="xp_gained" name="xp_gained"
+                               value="{{ session.xp_gained if session else 60 }}"
+                               min="0" max="99999" required>
+                        <div class="form-text">
+                            Suggerimento: 120 XP per ora (2 XP al minuto)
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Note</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"
+                                  placeholder="Cosa hai fatto in questa sessione?">{{ session.notes if session and session.notes else '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.sessions_list') }}" class="btn btn-secondary">Annulla</a>
+                        <button type="submit" class="btn btn-success">
+                            {{ 'Salva Modifiche' if session else 'Registra Sessione' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if not session and skills %}
+        <!-- Quick XP Calculator -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Calcolatore XP Rapido</h6>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <input type="range" class="form-range" id="xpSlider" min="0" max="240" value="30" step="5">
+                    </div>
+                    <div class="col-auto">
+                        <span id="xpResult" class="badge bg-success fs-5">60 XP</span>
+                    </div>
+                </div>
+                <small class="text-muted">Trascina per calcolare XP in base ai minuti (120 XP/ora)</small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.getElementById('xpSlider');
+    const result = document.getElementById('xpResult');
+    const durationInput = document.getElementById('duration_minutes');
+    const xpInput = document.getElementById('xp_gained');
+
+    if (slider) {
+        slider.addEventListener('input', function() {
+            const minutes = this.value;
+            const xp = minutes * 2;  // 120 XP per ora (2 XP al minuto)
+            result.textContent = xp + ' XP';
+            durationInput.value = minutes;
+            xpInput.value = xp;
+        });
+    }
+});
+</script>
+{% endblock %}

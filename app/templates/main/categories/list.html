@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Categorie - Skill Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Le tue Categorie</h1>
+    <a href="{{ url_for('main.categories_new') }}" class="btn btn-secondary">
+        + Nuova Categoria
+    </a>
+</div>
+
+{% if categories %}
+<div class="row">
+    {% for item in categories %}
+    <div class="col-md-4 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h1 class="display-3 mb-2">{{ item.category.icon }}</h1>
+                <h5 class="card-title">{{ item.category.name }}</h5>
+                <p class="text-muted mb-3">
+                    <span class="badge bg-primary">{{ item.skill_count }} skills</span>
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="btn-group w-100" role="group">
+                    <a href="{{ url_for('main.categories_edit', category_id=item.category.id) }}"
+                       class="btn btn-outline-primary btn-sm">Modifica</a>
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                            onclick="confirmDelete('{{ item.category.name }}', '{{ url_for('main.categories_delete', category_id=item.category.id) }}', {{ item.skill_count }})">
+                        Elimina
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <h4 class="text-muted">Nessuna categoria creata</h4>
+        <p class="text-muted">Le categorie ti aiutano a organizzare le tue skills!</p>
+        <a href="{{ url_for('main.categories_new') }}" class="btn btn-secondary btn-lg">
+            Crea la prima Categoria
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Conferma Eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare la categoria "<span id="deleteItemName"></span>"?</p>
+                <p id="deleteWarning" class="text-warning" style="display: none;">
+                    <strong>Attenzione:</strong> Le skills associate perderanno la categoria.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Elimina</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(name, url, skillCount) {
+    document.getElementById('deleteItemName').textContent = name;
+    document.getElementById('deleteForm').action = url;
+    document.getElementById('deleteWarning').style.display = skillCount > 0 ? 'block' : 'none';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}
