@@ -284,6 +284,8 @@ def create_skill_from_row(row):
     """
     Crea un oggetto Skill da una row del database.
     """
+    # sqlite3.Row non ha .get(), usiamo row.keys() per verificare campi opzionali
+    keys = row.keys()
     return Skill(
         id=row['id'],
         name=row['name'],
@@ -294,7 +296,7 @@ def create_skill_from_row(row):
         category_id=row['category_id'],
         user_id=row['user_id'],
         created_at=row['created_at'],
-        category_name=row.get('category_name')  # Potrebbe non esserci se non fai JOIN
+        category_name=row['category_name'] if 'category_name' in keys else None
     )
 
 
@@ -302,6 +304,8 @@ def create_session_from_row(row):
     """
     Crea un oggetto Session da una row del database.
     """
+    # sqlite3.Row non ha .get(), usiamo row.keys() per verificare campi opzionali
+    keys = row.keys()
     return Session(
         id=row['id'],
         skill_id=row['skill_id'],
@@ -311,7 +315,7 @@ def create_session_from_row(row):
         notes=row['notes'],
         user_id=row['user_id'],
         created_at=row['created_at'],
-        skill_name=row.get('skill_name')
+        skill_name=row['skill_name'] if 'skill_name' in keys else None
     )
 
 
