@@ -1,0 +1,49 @@
+erDiagram
+
+    %% Relazioni tra le entità
+    USERS ||--o{ CATEGORIES : "ha"
+    USERS ||--o{ SKILLS : "ha"
+    CATEGORIES ||--o{ SKILLS : "contiene"
+    SKILLS ||--o{ SESSIONS : "utilizzata in"
+    USERS ||--o{ SESSIONS : "registra"
+
+    %% Tabella USERS
+    USERS {
+        int id PK
+        string username
+        string email
+        string password_hash
+        datetime created_at
+    }
+    
+    %% Tabella CATEGORIES
+    CATEGORIES {
+        int id PK
+        string name "es: Programmazione, Lingue, Sport"
+        string icon "emoji o classe icona"
+        int user_id FK
+    }
+
+    %% Tabella SKILLS
+    SKILLS {
+        int id PK
+        string name "es: Python, Inglese, Chitarra"
+        string description
+        int current_level "1-100"
+        int target_level "1-100"
+        int category_id FK
+        int user_id FK
+        datetime created_at
+    }
+
+    %% Tabella SESSIONS
+    SESSIONS {
+        int id PK
+        int skill_id FK
+        date date
+        int duration_minutes
+        int xp_gained
+        string notes
+        int user_id FK
+    }
+
