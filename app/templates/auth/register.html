@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrazione - Skill Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="mb-0">Registrazione</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               required autofocus placeholder="Scegli un username">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               required placeholder="La tua email">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               required placeholder="Minimo 6 caratteri">
+                        <div class="form-text">La password deve essere di almeno 6 caratteri.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Conferma Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                               required placeholder="Ripeti la password">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Registrati</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>Hai già un account?
+                    <a href="{{ url_for('auth.login') }}">Accedi</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
